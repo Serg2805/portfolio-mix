@@ -1,0 +1,1013 @@
+{
+	"info": {
+		"_postman_id": "75821150-c7ba-47a3-94ea-a00f80961c05",
+		"name": "Deposit",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "17640427"
+	},
+	"item": [
+		{
+			"name": "Auth",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"if (pm.response.to.have.status(200) && pm.response.to.have.body()) {\r",
+							"    var responseJsonData = pm.response.json();\r",
+							"\r",
+							"    pm.environment.set(\"token\", responseJsonData.accessToken);\r",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"login\": \"{{existentUserLogin}}\",\r\n  \"password\": \"{{existentUserPass}}\",\r\n  \"recaptchaResponse\": \"fake_captcha\"\r\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/security/token",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"security",
+						"token"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "api/Wallets",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Response Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Response body contains array\", function () {\r",
+							"    if (pm.response.to.have.body()) {\r",
+							"        var walletsArray = pm.response.json();\r",
+							"        pm.expect(walletsArray).to.be.an('array').that.is.not.empty;\r",
+							"\r",
+							"        for (var wallet of walletsArray) {\r",
+							"            if (wallet.name === \"Main\" && wallet.hasOwnProperty(\"id\")) {\r",
+							"                pm.environment.set(\"mainWalletId\", wallet.id);\r",
+							"            }\r",
+							"        }\r",
+							"    }\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{token}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{baseUrl}}/api/Wallets",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"Wallets"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "api/Wallets/add",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Респонс 201\", function () {\r",
+							"    pm.response.to.have.status(201);\r",
+							"    });\r",
+							"    \r",
+							"var newWallet = JSON.parse(responseBody);\r",
+							"\r",
+							"postman.setEnvironmentVariable(\"newWallet\", newWallet);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer {{token}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"wallet\": {\n    \"id\": \"5d10c5009df981{{$timestamp}}\",\n    \"minerName\": \"5d10c5009df9810005d9498b\",\n    \"name\": \"Wallet-{{$timestamp}}\",\n    \"isMain\": false,\n    \"accounts\": {\n      \"14\": {\n        \"withdrawAddress\": \"null\",\n        \"availableBalance\": 0,\n        \"blockedBalance\": 0\n      }\n}\n}\n}\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/Wallets/add",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"Wallets",
+						"add"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Verify deposit address creation status code",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is Created\", function () {\r",
+							"    //pm.response.to.be.Created;\r",
+							"    pm.response.to.have.status(201);\r",
+							"\r",
+							"    var newDepositAddress = JSON.parse(responseBody);\r",
+							"    postman.setEnvironmentVariable(\"newDepositAddress\", newDepositAddress);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"type": "text",
+						"value": "Bearer {{token}}"
+					}
+				],
+				"url": {
+					"raw": "{{baseUrl}}/api/Wallets/{{newWallet}}/createDepositAccount/14",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"Wallets",
+						"{{newWallet}}",
+						"createDepositAccount",
+						"14"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Verify deposit address saved",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Response body contains new deposit address\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"    pm.response.to.have.body();\r",
+							"\r",
+							"    var walletsArray = pm.response.json();\r",
+							"    var found = false;\r",
+							"    for (var wallet of walletsArray) {\r",
+							"        if (wallet.id === postman.getEnvironmentVariable(\"newWallet\")\r",
+							"            && wallet.accounts[\"14\"].depositAddress === postman.getEnvironmentVariable(\"newDepositAddress\")) {\r",
+							"            found = true;\r",
+							"        }\r",
+							"    }\r",
+							"\r",
+							"    pm.expect(found).to.be.true;\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"type": "text",
+						"value": "Bearer {{token}}"
+					}
+				],
+				"url": {
+					"raw": "{{baseUrl}}/api/Wallets",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"Wallets"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Save last deposit notification id",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Save last deposit notification id\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"    pm.response.to.have.body();\r",
+							"\r",
+							"    var notificationPage = pm.response.json();\r",
+							"\r",
+							"    for (var notification of notificationPage.items) {\r",
+							"        if (notification.type === 9) {\r",
+							"            postman.setEnvironmentVariable(\"lastDepositNotificationId\", notification.id);\r",
+							"            console.log(\"lastDepositNotificationId = \" + notification.id);\r",
+							"            break;\r",
+							"        }\r",
+							"    }\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"type": "text",
+						"value": "Bearer {{token}}"
+					}
+				],
+				"url": {
+					"raw": "{{baseUrl}}/api/Notification",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"Notification"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Send coins to deposit address",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var response = JSON.parse(responseBody);",
+							"postman.setEnvironmentVariable(\"depositTransactionID\", response.result);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"method\": \"personal_sendTransaction\",\n    \"params\": [\n        {\n            \"from\": \"{{ethFromTestAddress}}\",\n            \"to\": \"{{newDepositAddress}}\",\n            \"value\": \"{{ethTestTransactionValue}}\"\n        },\n        \"{{ethFromTestPass}}\"\n    ],\n    \"id\": 1,\n    \"jsonrpc\": \"2.0\"\n}"
+				},
+				"url": {
+					"raw": "{{ethNode}}",
+					"host": [
+						"{{ethNode}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Verify account was populated",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Verify account was populated\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"    pm.response.to.have.body();\r",
+							"\r",
+							"    var walletsArray = pm.response.json();\r",
+							"    var found = false;\r",
+							"    ethExpected = postman.getEnvironmentVariable(\"ethTestTransactionValue\")/1000000000000000000;\r",
+							"    console.log(\"ethExpected = \" + ethExpected);\r",
+							"    for (var wallet of walletsArray) {\r",
+							"        if (wallet.id === postman.getEnvironmentVariable(\"newWallet\")\r",
+							"            && wallet.accounts[\"14\"].availableBalance == ethExpected) {\r",
+							"            found = true;\r",
+							"        }\r",
+							"    }\r",
+							"\r",
+							"    pm.expect(found).to.be.true;\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"delay = postman.getEnvironmentVariable(\"ethGuaranteedTransactionImportDelay\")",
+							"console.log(\"Sleeping for \" + delay + \" seconds before request.\");",
+							"setTimeout(function(){}, delay * 1000);",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"type": "text",
+						"value": "Bearer {{token}}"
+					}
+				],
+				"url": {
+					"raw": "{{baseUrl}}/api/Wallets",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"Wallets"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Verify deposit notification added to history",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Verify deposit notification added to history\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"    pm.response.to.have.body();\r",
+							"\r",
+							"    var notificationPage = pm.response.json();\r",
+							"\r",
+							"    for (var notification of notificationPage.items) {\r",
+							"        if (notification.type === 9) {\r",
+							"            console.log(\"lastDepositNotificationId = \" + notification.id);\r",
+							"\r",
+							"            var lastDepositNotificationIsNextDepositNotification = \r",
+							"                notification.id > postman.getEnvironmentVariable(\"lastDepositNotificationId\");\r",
+							"\r",
+							"            pm.expect(lastDepositNotificationIsNextDepositNotification).to.be.true;\r",
+							"            break;\r",
+							"        }\r",
+							"    }\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"type": "text",
+						"value": "Bearer {{token}}"
+					}
+				],
+				"url": {
+					"raw": "{{baseUrl}}/api/Notification",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"Notification"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Send coins to deposit address again",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"method\": \"personal_sendTransaction\",\n    \"params\": [\n        {\n            \"from\": \"{{ethFromTestAddress}}\",\n            \"to\": \"{{newDepositAddress}}\",\n            \"value\": \"{{ethTestTransactionValue}}\"\n        },\n        \"{{ethFromTestPass}}\"\n    ],\n    \"id\": 1,\n    \"jsonrpc\": \"2.0\"\n}"
+				},
+				"url": {
+					"raw": "{{ethNode}}",
+					"host": [
+						"{{ethNode}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Verify account was populated again",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Verify account was populated\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"    pm.response.to.have.body();\r",
+							"\r",
+							"    var walletsArray = pm.response.json();\r",
+							"    var found = false;\r",
+							"    ethExpected = postman.getEnvironmentVariable(\"ethTestTransactionValue\")/1000000000000000000*2;\r",
+							"    console.log(\"ethExpected = \" + ethExpected);\r",
+							"    for (var wallet of walletsArray) {\r",
+							"        if (wallet.id === postman.getEnvironmentVariable(\"newWallet\")\r",
+							"            && wallet.accounts[\"14\"].availableBalance == ethExpected) {\r",
+							"            found = true;\r",
+							"        }\r",
+							"    }\r",
+							"\r",
+							"    pm.expect(found).to.be.true;\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"delay = postman.getEnvironmentVariable(\"ethGuaranteedTransactionImportDelay\")",
+							"console.log(\"Sleeping for \" + delay + \" seconds before request.\");",
+							"setTimeout(function(){}, delay * 1000);",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"type": "text",
+						"value": "Bearer {{token}}"
+					}
+				],
+				"url": {
+					"raw": "{{baseUrl}}/api/Wallets",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"Wallets"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Verify deposit request created",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Response body contains new deposit request\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"    pm.response.to.have.body();\r",
+							"\r",
+							"    var response = pm.response.json();\r",
+							"    var found = false;\r",
+							"    ethExpected = postman.getEnvironmentVariable(\"ethTestTransactionValue\")/1000000000000000000;\r",
+							"    for (var depositRequest of response.items) {\r",
+							"        if (depositRequest.coinType == 14\r",
+							"            && depositRequest.depositAddress == postman.getEnvironmentVariable(\"newDepositAddress\")\r",
+							"            && depositRequest.walletId == postman.getEnvironmentVariable(\"newWallet\")\r",
+							"            && depositRequest.transactionID == postman.getEnvironmentVariable(\"depositTransactionID\")\r",
+							"            && depositRequest.value == ethExpected\r",
+							"            && depositRequest.sourceAddress == postman.getEnvironmentVariable(\"ethFromTestAddress\")) {\r",
+							"            found = true;\r",
+							"        }\r",
+							"    }\r",
+							"    pm.expect(found).to.be.true;\r",
+							"\r",
+							"\r",
+							"/*\r",
+							"    console.log(\"newDepositAddress: \" + postman.getEnvironmentVariable(\"newDepositAddress\"));\r",
+							"    console.log(\"newWallet: \" + postman.getEnvironmentVariable(\"newWallet\"));\r",
+							"    console.log(\"depositTransactionID: \" + postman.getEnvironmentVariable(\"depositTransactionID\"));\r",
+							"    console.log(\"ethExpected: \" + ethExpected);\r",
+							"    console.log(\"ethFromTestAddress: \" + postman.getEnvironmentVariable(\"ethFromTestAddress\"));\r",
+							"*/\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"type": "text",
+						"value": "Bearer {{token}}"
+					}
+				],
+				"url": {
+					"raw": "{{baseUrl}}/api/DepositRequest",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"DepositRequest"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Verify deposit request txID filter",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Response body contains new deposit request\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"    pm.response.to.have.body();\r",
+							"\r",
+							"    var response = pm.response.json();\r",
+							"    \r",
+							"    var success = response.items.length == 1;\r",
+							"    success = success && (response.items[0].transactionID == postman.getEnvironmentVariable(\"depositTransactionID\"));\r",
+							"\r",
+							"    pm.expect(success).to.be.true;\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"type": "text",
+						"value": "Bearer {{token}}"
+					}
+				],
+				"url": {
+					"raw": "{{baseUrl}}/api/DepositRequest?TransactionID={{depositTransactionID}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"DepositRequest"
+					],
+					"query": [
+						{
+							"key": "TransactionID",
+							"value": "{{depositTransactionID}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Verify deposit request source address filter",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Response body contains new deposit request\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"    pm.response.to.have.body();\r",
+							"\r",
+							"    var response = pm.response.json();\r",
+							"    var found = 0;\r",
+							"    for (var depositRequest of response.items) {\r",
+							"        if (depositRequest.sourceAddress == postman.getEnvironmentVariable(\"ethFromTestAddress\")) {\r",
+							"            found++;\r",
+							"        }\r",
+							"    }\r",
+							"\r",
+							"    pm.expect(response.items.length == found).to.be.true;\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"type": "text",
+						"value": "Bearer {{token}}"
+					}
+				],
+				"url": {
+					"raw": "{{baseUrl}}/api/DepositRequest?SourceAddress={{ethFromTestAddress}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"DepositRequest"
+					],
+					"query": [
+						{
+							"key": "SourceAddress",
+							"value": "{{ethFromTestAddress}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "api/AutoWithdrawal",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Response Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"var newAutoWithdrawal = JSON.parse(responseBody);\r",
+							"postman.setEnvironmentVariable(\"newAutoWithdrawal\", newAutoWithdrawal);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer {{token}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"walletID\": \"{{newWallet}}\",\n  \"coinType\": 14,\n  \"period\": \"00:01:00\",\n  \"atLeastAmount\": 0.001\n}\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/AutoWithdrawal",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"AutoWithdrawal"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "api/AutoWithdrawal",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Response Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{token}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{baseUrl}}/api/AutoWithdrawal",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"AutoWithdrawal"
+					],
+					"query": [
+						{
+							"key": "WalletID",
+							"value": "5b02bdee2bbe83000111ff35",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "api/AutoWithdrawal confirm",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Response Status code is 400\", function () {\r",
+							"    pm.response.to.have.status(400);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"type": "text",
+						"value": "Bearer {{token}}"
+					}
+				],
+				"url": {
+					"raw": "{{baseUrl}}/api/AutoWithdrawal/confirm?token=123",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"AutoWithdrawal",
+						"confirm"
+					],
+					"query": [
+						{
+							"key": "token",
+							"value": "123"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "api/AutoWithdrawal resend",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Response Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"type": "text",
+						"value": "Bearer {{token}}"
+					}
+				],
+				"url": {
+					"raw": "{{baseUrl}}/api/AutoWithdrawal/resendConfirmation?autoWithdrawalID={{newAutoWithdrawal}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"AutoWithdrawal",
+						"resendConfirmation"
+					],
+					"query": [
+						{
+							"key": "autoWithdrawalID",
+							"value": "{{newAutoWithdrawal}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "api/AutoWithdrawal cancel",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Response Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"type": "text",
+						"value": "Bearer {{token}}"
+					}
+				],
+				"url": {
+					"raw": "{{baseUrl}}/api/AutoWithdrawal/cancel?autoWithdrawalID={{newAutoWithdrawal}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"AutoWithdrawal",
+						"cancel"
+					],
+					"query": [
+						{
+							"key": "autoWithdrawalID",
+							"value": "{{newAutoWithdrawal}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete created wallet",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Response Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{token}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{baseUrl}}/api/Wallets/delete/{{newWallet}}/{{mainWalletId}}/{{mainWalletId}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"Wallets",
+						"delete",
+						"{{newWallet}}",
+						"{{mainWalletId}}",
+						"{{mainWalletId}}"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

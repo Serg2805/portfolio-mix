@@ -1,0 +1,432 @@
+{
+	"info": {
+		"_postman_id": "21a8e532-4d56-4fd6-9067-35637a7ec322",
+		"name": "Ludio games (main flow)",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "17640427"
+	},
+	"item": [
+		{
+			"name": "Login",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('Response Status code from \"/auth/login\"  is 200', function () {",
+							"    pm.response.to.have.status(200)",
+							"    ",
+							"    const responseJsonData = pm.response.json();",
+							"    pm.environment.set(\"accessToken\", responseJsonData.accessToken);",
+							"    pm.environment.set(\"expiresIn\", responseJsonData.expiresIn);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"email\": \"{{existingUser}}\",\n  \"password\": \"{{existingUserPassword}}\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_Url}}/auth/login",
+					"host": [
+						"{{base_Url}}"
+					],
+					"path": [
+						"auth",
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Setting room",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('Response Status code from \"/user/me\"  is 200', function () {",
+							"    pm.response.to.have.status(200)",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{accessToken}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_Url}}/user/me",
+					"host": [
+						"{{base_Url}}"
+					],
+					"path": [
+						"user",
+						"me"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Conference",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('Response Status code from \"/conference\"  is 201', function () {",
+							"    pm.response.to.have.status(201)",
+							"    ",
+							"    const responseJsonData = pm.response.json();",
+							"    pm.environment.set(\"conferenceId\", responseJsonData.id);",
+							"    pm.environment.set(\"expiresIn\", responseJsonData.expiresIn);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{accessToken}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"rtc\": \"daily\",\n    \"password\": \"password\",\n    \"isDemo\": false,\n    \"accessType\": \"PRIVATE\",\n    \"creatorType\": \"INDIVIDUAL\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_Url}}/conference",
+					"host": [
+						"{{base_Url}}"
+					],
+					"path": [
+						"conference"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Add participants",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('Response Status code from \"/conference/addParticipant\"  is 200', function () {",
+							"    pm.response.to.have.status(200)",
+							"    ",
+							"    const responseJsonData = pm.response.json();",
+							"    pm.environment.set(\"idUser1\", responseJsonData.participants[0].id);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{accessToken}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"conferenceId\": \"{{conferenceId}}\",\n    \"userRtcId\": \"\",\n    \"displayName\": \"Peter Crouch\",\n    \"password\": \"password\",\n    \"audio\": \"MUTED\",\n    \"video\": \"MUTED\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_Url}}/conference/addParticipant",
+					"host": [
+						"{{base_Url}}"
+					],
+					"path": [
+						"conference",
+						"addParticipant"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Login user #2",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('Response Status code from \"/auth/login\"  is 200', function () {",
+							"    pm.response.to.have.status(200)",
+							"    ",
+							"    const responseJsonData = pm.response.json();",
+							"    pm.environment.set(\"accessTokenUser2\", responseJsonData.accessToken);",
+							"    pm.environment.set(\"expiresIn\", responseJsonData.expiresIn);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"email\": \"{{existingUser2}}\",\n  \"password\": \"{{existingUserPassword2}}\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_Url}}/auth/login",
+					"host": [
+						"{{base_Url}}"
+					],
+					"path": [
+						"auth",
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Add user #2 in existing conference",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('Response Status code from \"/conference/addParticipant\"  is 200', function () {",
+							"    pm.response.to.have.status(200)",
+							"    ",
+							"    const responseJsonData = pm.response.json();",
+							"    pm.environment.set(\"idUser1\", responseJsonData.participants[0].id);",
+							"    pm.environment.set(\"idUser2\", responseJsonData.participants[1].id);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{accessTokenUser2}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"conferenceId\": \"{{conferenceId}}\",\n    \"userRtcId\": \"\",\n    \"displayName\": \"Ludio Test\",\n    \"password\": \"password\",\n    \"audio\": \"MUTED\",\n    \"video\": \"MUTED\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_Url}}/conference/addParticipant",
+					"host": [
+						"{{base_Url}}"
+					],
+					"path": [
+						"conference",
+						"addParticipant"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Start game",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('Response Status code from \"/engines/start\"  is 201', function () {",
+							"    pm.response.to.have.status(201)",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{accessToken}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"setupId\": \"7fee9c60-1975-491d-9e4c-5f2793c2b051\",\n    \"players\": [\n        \"{{idUser1}}\",\n        \"{{idUser2}}\"\n    ],\n    \"gameSettings\": {\n        \"randomizePlayerPositions\": true,\n        \"generatePlayersNumbers\": true,\n        \"nonPlayersIsSpectators\": true,\n        \"interActionDelay\": 0,\n        \"autoGame\": true,\n        \"isDeadChatActive\": true,\n        \"deadPlayersIsSpectators\": true,\n        \"muteSpectators\": false,\n        \"botsQnt\": 4,\n        \"spectatorBotsQnt\": 0\n    },\n    \"setupSettings\": {\n        \"roles\": [\n            [\n                {\n                    \"id\": \"drunk\",\n                    \"name\": \"Drunk\",\n                    \"description\": \"Switch roles with a card from the center. You do not get to see your new role.\",\n                    \"avatar\": \"https://res.cloudinary.com/liars-club/image/upload/v1652994391/drunk_iblo7g.webp\",\n                    \"team\": \"villagers\"\n                },\n                3\n            ],\n            [\n                {\n                    \"id\": \"tanner\",\n                    \"name\": \"Tanner\",\n                    \"description\": \"You win if you are executed at the end of the day.\",\n                    \"avatar\": \"https://res.cloudinary.com/liars-club/image/upload/v1652994391/tanner_yk5tbr.webp\",\n                    \"team\": \"tanner\"\n                },\n                2\n            ]\n        ]\n    }\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_Url}}/engines/start",
+					"host": [
+						"{{base_Url}}"
+					],
+					"path": [
+						"engines",
+						"start"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Conference port",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('Response Status code from \"/engines/conference_port\"  is 200', function () {",
+							"    pm.response.to.have.status(200)",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{accessToken}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_Url}}/engines/conference_port/fee47a0a-eb41-4013-be31-aea8937fda52",
+					"host": [
+						"{{base_Url}}"
+					],
+					"path": [
+						"engines",
+						"conference_port",
+						"fee47a0a-eb41-4013-be31-aea8937fda52"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get port",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('Response Status code from \"/engines/port\"  is 200', function () {",
+							"    pm.response.to.have.status(200)",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{accessToken}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_Url}}/engines/port",
+					"host": [
+						"{{base_Url}}"
+					],
+					"path": [
+						"engines",
+						"port"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

@@ -1,0 +1,510 @@
+{
+	"info": {
+		"_postman_id": "1b0399a2-54a0-4619-af26-d114bf5b00cd",
+		"name": "Public SOAP APIs",
+		"description": "This is a collection of different SOAP APIs that are completley public and do not require any authentication, making it easier for consumers to play with and understand what APIs are all about by seeing the many different ways in which APIs can be used.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "17640427"
+	},
+	"item": [
+		{
+			"name": "Calculator",
+			"item": [
+				{
+					"name": "Divide test 5/5",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code from \"http://www.dneonline.com/calculator.asmx\" is 200', function () {",
+									"    pm.response.to.have.status(200)",
+									"});",
+									"",
+									"pm.test('Divide test', function () {",
+									"    let jsonObject = xml2Json(responseBody);",
+									"    let expectedResult = 5/5;",
+									"    let divideResult = parseInt(jsonObject ['soap:Envelope'] ['soap:Body'] ['DivideResponse'] ['DivideResult']);",
+									"    pm.expect(divideResult).to.eql(expectedResult);",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "text/xml; charset=utf-8",
+								"type": "text"
+							},
+							{
+								"key": "SOAPAction",
+								"value": "http://tempuri.org/Divide",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<soap:Envelope xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\">\n  <soap:Body>\n    <Divide xmlns=\"http://tempuri.org/\">\n      <intA>5</intA>\n      <intB>5</intB>\n    </Divide>\n  </soap:Body>\n</soap:Envelope>"
+						},
+						"url": {
+							"raw": "http://www.dneonline.com/calculator.asmx",
+							"protocol": "http",
+							"host": [
+								"www",
+								"dneonline",
+								"com"
+							],
+							"path": [
+								"calculator.asmx"
+							]
+						},
+						"description": "Divides two integers."
+					},
+					"response": []
+				},
+				{
+					"name": "Divide test 10/5",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code from \"http://www.dneonline.com/calculator.asmx\" is 200', function () {",
+									"    pm.response.to.have.status(200)",
+									"});",
+									"",
+									"pm.test('Divide test ', function () {",
+									"    let jsonObject = xml2Json(responseBody);",
+									"    let expectedResult = 10/5;",
+									"    let divideResult = parseInt(jsonObject ['soap:Envelope'] ['soap:Body'] ['DivideResponse'] ['DivideResult']);",
+									"    pm.expect(divideResult).to.eql(expectedResult);",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "text/xml; charset=utf-8",
+								"type": "text"
+							},
+							{
+								"key": "SOAPAction",
+								"value": "http://tempuri.org/Divide",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<soap:Envelope xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\">\n  <soap:Body>\n    <Divide xmlns=\"http://tempuri.org/\">\n      <intA>10</intA>\n      <intB>5</intB>\n    </Divide>\n  </soap:Body>\n</soap:Envelope>"
+						},
+						"url": {
+							"raw": "http://www.dneonline.com/calculator.asmx",
+							"protocol": "http",
+							"host": [
+								"www",
+								"dneonline",
+								"com"
+							],
+							"path": [
+								"calculator.asmx"
+							]
+						},
+						"description": "Divides two integers."
+					},
+					"response": []
+				},
+				{
+					"name": "Divide test 10/-5",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code from \"http://www.dneonline.com/calculator.asmx\" is 200', function () {",
+									"    pm.response.to.have.status(200)",
+									"});",
+									"",
+									"pm.test('Divide test ', function () {",
+									"    let jsonObject = xml2Json(responseBody);",
+									"    let expectedResult = 10/-5;",
+									"    let divideResult = parseInt(jsonObject ['soap:Envelope'] ['soap:Body'] ['DivideResponse'] ['DivideResult']);",
+									"    pm.expect(divideResult).to.eql(expectedResult);",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "text/xml; charset=utf-8",
+								"type": "text"
+							},
+							{
+								"key": "SOAPAction",
+								"value": "http://tempuri.org/Divide",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<soap:Envelope xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\">\n  <soap:Body>\n    <Divide xmlns=\"http://tempuri.org/\">\n      <intA>10</intA>\n      <intB>-5</intB>\n    </Divide>\n  </soap:Body>\n</soap:Envelope>"
+						},
+						"url": {
+							"raw": "http://www.dneonline.com/calculator.asmx",
+							"protocol": "http",
+							"host": [
+								"www",
+								"dneonline",
+								"com"
+							],
+							"path": [
+								"calculator.asmx"
+							]
+						},
+						"description": "Divides two integers."
+					},
+					"response": []
+				},
+				{
+					"name": "Divide test 6/0",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code from \"http://www.dneonline.com/calculator.asmx\" is 500', function () {",
+									"    pm.response.to.have.status(500)",
+									"});",
+									"",
+									"//писать тест нет смысла, так как при делении на 0 бэк выдает ошибку, так как на 0 делить нельзя."
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "text/xml; charset=utf-8",
+								"type": "text"
+							},
+							{
+								"key": "SOAPAction",
+								"value": "http://tempuri.org/Divide",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<soap:Envelope xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\">\n  <soap:Body>\n    <Divide xmlns=\"http://tempuri.org/\">\n      <intA>6</intA>\n      <intB>0</intB>\n    </Divide>\n  </soap:Body>\n</soap:Envelope>"
+						},
+						"url": {
+							"raw": "http://www.dneonline.com/calculator.asmx",
+							"protocol": "http",
+							"host": [
+								"www",
+								"dneonline",
+								"com"
+							],
+							"path": [
+								"calculator.asmx"
+							]
+						},
+						"description": "Divides two integers."
+					},
+					"response": []
+				},
+				{
+					"name": "Multiply test 4*4",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code from \"http://www.dneonline.com/calculator.asmx\" is 200', function () {",
+									"    pm.response.to.have.status(200)",
+									"});",
+									"",
+									"pm.test('Multiply test', function () {",
+									"    let jsonObject = xml2Json(responseBody);",
+									"    let expectedResult = 4*4;",
+									"    let multiplyResult = parseInt(jsonObject ['soap:Envelope'] ['soap:Body'] ['MultiplyResponse'] ['MultiplyResult']);",
+									"    pm.expect(multiplyResult).to.eql(expectedResult);",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "text/xml; charset=utf-8",
+								"type": "text"
+							},
+							{
+								"key": "SOAPAction",
+								"value": "http://tempuri.org/Multiply",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<soap:Envelope xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\">\n  <soap:Body>\n    <Multiply xmlns=\"http://tempuri.org/\">\n      <intA>4</intA>\n      <intB>4</intB>\n    </Multiply>\n  </soap:Body>\n</soap:Envelope>"
+						},
+						"url": {
+							"raw": "http://www.dneonline.com/calculator.asmx",
+							"protocol": "http",
+							"host": [
+								"www",
+								"dneonline",
+								"com"
+							],
+							"path": [
+								"calculator.asmx"
+							]
+						},
+						"description": "Multiplies two integers."
+					},
+					"response": []
+				},
+				{
+					"name": "Multiply test  1*1",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code from \"http://www.dneonline.com/calculator.asmx\" is 200', function () {",
+									"    pm.response.to.have.status(200)",
+									"});",
+									"",
+									"pm.test('Multiply test', function () {",
+									"    let jsonObject = xml2Json(responseBody);",
+									"    let expectedResult = 1*1;",
+									"    let multiplyResult = parseInt(jsonObject ['soap:Envelope'] ['soap:Body'] ['MultiplyResponse'] ['MultiplyResult']);",
+									"    pm.expect(multiplyResult).to.eql(expectedResult);",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "text/xml; charset=utf-8",
+								"type": "text"
+							},
+							{
+								"key": "SOAPAction",
+								"value": "http://tempuri.org/Multiply",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<soap:Envelope xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\">\n  <soap:Body>\n    <Multiply xmlns=\"http://tempuri.org/\">\n      <intA>1</intA>\n      <intB>1</intB>\n    </Multiply>\n  </soap:Body>\n</soap:Envelope>"
+						},
+						"url": {
+							"raw": "http://www.dneonline.com/calculator.asmx",
+							"protocol": "http",
+							"host": [
+								"www",
+								"dneonline",
+								"com"
+							],
+							"path": [
+								"calculator.asmx"
+							]
+						},
+						"description": "Multiplies two integers."
+					},
+					"response": []
+				},
+				{
+					"name": "Multiply test 1*-5",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code from \"http://www.dneonline.com/calculator.asmx\" is 200', function () {",
+									"    pm.response.to.have.status(200)",
+									"});",
+									"",
+									"pm.test('Multiply test', function () {",
+									"    let jsonObject = xml2Json(responseBody);",
+									"    let expectedResult = 1*-5;",
+									"    let multiplyResult = parseInt(jsonObject ['soap:Envelope'] ['soap:Body'] ['MultiplyResponse'] ['MultiplyResult']);",
+									"    pm.expect(multiplyResult).to.eql(expectedResult);",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "text/xml; charset=utf-8",
+								"type": "text"
+							},
+							{
+								"key": "SOAPAction",
+								"value": "http://tempuri.org/Multiply",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<soap:Envelope xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\">\n  <soap:Body>\n    <Multiply xmlns=\"http://tempuri.org/\">\n      <intA>1</intA>\n      <intB>-5</intB>\n    </Multiply>\n  </soap:Body>\n</soap:Envelope>"
+						},
+						"url": {
+							"raw": "http://www.dneonline.com/calculator.asmx",
+							"protocol": "http",
+							"host": [
+								"www",
+								"dneonline",
+								"com"
+							],
+							"path": [
+								"calculator.asmx"
+							]
+						},
+						"description": "Multiplies two integers."
+					},
+					"response": []
+				},
+				{
+					"name": "Multiply test 1*0",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code from \"http://www.dneonline.com/calculator.asmx\" is 200', function () {",
+									"    pm.response.to.have.status(200)",
+									"});",
+									"",
+									"pm.test('Multiply test', function () {",
+									"    let jsonObject = xml2Json(responseBody);",
+									"    let expectedResult = 1*0;",
+									"    let multiplyResult = parseInt(jsonObject ['soap:Envelope'] ['soap:Body'] ['MultiplyResponse'] ['MultiplyResult']);",
+									"    pm.expect(multiplyResult).to.eql(expectedResult);",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "text/xml; charset=utf-8",
+								"type": "text"
+							},
+							{
+								"key": "SOAPAction",
+								"value": "http://tempuri.org/Multiply",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<soap:Envelope xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\">\n  <soap:Body>\n    <Multiply xmlns=\"http://tempuri.org/\">\n      <intA>1</intA>\n      <intB>0</intB>\n    </Multiply>\n  </soap:Body>\n</soap:Envelope>"
+						},
+						"url": {
+							"raw": "http://www.dneonline.com/calculator.asmx",
+							"protocol": "http",
+							"host": [
+								"www",
+								"dneonline",
+								"com"
+							],
+							"path": [
+								"calculator.asmx"
+							]
+						},
+						"description": "Multiplies two integers."
+					},
+					"response": []
+				}
+			],
+			"description": "A simple SOAP API calculator.",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "Regnum ",
+			"value": ""
+		},
+		{
+			"key": "Result",
+			"value": ""
+		}
+	]
+}

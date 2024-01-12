@@ -1,0 +1,480 @@
+{
+	"info": {
+		"_postman_id": "b1245638-af35-40d2-85e8-946c3f0d723f",
+		"name": "RigEvent",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "17640427"
+	},
+	"item": [
+		{
+			"name": "Authorization",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('Response Status code from \"/security/token\" is 200', function () {\r",
+							"    pm.response.to.be.ok;\r",
+							"    if (pm.response.to.have.body()) {\r",
+							"        var responseJsonData = pm.response.json();\r",
+							"        pm.environment.set(\"accessToken\", responseJsonData.accessToken);\r",
+							"    }\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"login\": \"{{existentUserLogin}}\",\r\n  \"password\": \"{{existentUserPass}}\",\r\n  \"recaptchaResponse\": \"fake_captcha\"\r\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/security/token",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"security",
+						"token"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create event",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"pm.environment.set(\"rigEventText\", `autotest-${Date.now()}`);"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('Response Status code from \"/api/rigevent/add\" is 200', function () {\r",
+							"    pm.response.to.be.ok;\r",
+							"});\r",
+							"\r",
+							"var rigID = pm.environment.get(\"testRigID\");\r",
+							"var rigEventText = pm.environment.get(\"rigEventText\");\r",
+							"pm.test('Response body from \"/api/rigevent/add\" contains rig event array', function () {\r",
+							"    if (pm.response.to.have.body()) {\r",
+							"        var rigEventsArray = pm.response.json();\r",
+							"         if(pm.expect(rigEventsArray).to.be.an('array').that.is.not.empty) {\r",
+							"            const rigEvent = rigEventsArray.find(element => element.rigID === rigID);\r",
+							"            pm.expect(rigEvent.text, `Rig event text \"${rigEvent.text}\" should be equal to \"${rigEventText}\"`).to.equal(rigEventText);\r",
+							"            pm.expect(rigEvent.type, `Rig event type \"${rigEvent.type}\" should be equal to \"11\"`).to.equal(11);\r",
+							"            pm.expect(rigEvent.id, `Rig event id \"${rigEvent.id}\" should be not empty`).is.not.null.is.not.undefined.is.not.empty;\r",
+							"            pm.environment.set(\"eventID\", rigEvent.id)\r",
+							"            pm.environment.set(\"eventCreatedTime\", rigEvent.timestamp)\r",
+							"        }\r",
+							"    }\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"type": "text",
+						"value": "Bearer {{accessToken}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"rigIDs\": [\"{{testRigID}}\"],\n\t\"text\": \"{{rigEventText}}\"\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/rigEvent/add",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"rigEvent",
+						"add"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Find all events",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('Response Status code from \"/api/rigevent\" is 200', function () {\r",
+							"    pm.response.to.be.ok;\r",
+							"});\r",
+							"\r",
+							"var eventTypes = []\r",
+							"var rigEventArray = []\r",
+							"pm.test('Response body from \"/api/rigevent\" contains rig event array', function () {\r",
+							"    if (pm.response.to.have.body()) {\r",
+							"        rigEventArray = pm.response.json().items;\r",
+							"        if(pm.expect(rigEventArray).to.be.an('array').that.is.not.empty) {\r",
+							"            schema = data.components.schemas.AuditEvent\r",
+							"            for (var event of rigEventArray) {\r",
+							"                for (var property in schema.properties) {\r",
+							"                    pm.expect(event.hasOwnProperty(property), `Event '${event.id}' should have key: ${property}`).to.be.true;\r",
+							"                }\r",
+							"                eventTypes.push(event.type)\r",
+							"            }\r",
+							"        }\r",
+							"        console.log(eventTypes)\r",
+							"        pm.expect(eventTypes.includes(2), \"Events array should have event with type '2'\").is.true\r",
+							"        pm.expect(eventTypes.includes(11), \"Events array should have event with type '11'\").is.true\r",
+							"    }\r",
+							"});\r",
+							"\r",
+							"var rigID = pm.environment.get(\"testRigID\");\r",
+							"var eventID = pm.environment.get(\"eventID\");\r",
+							"var rigEventText = pm.environment.get(\"rigEventText\");\r",
+							"pm.test('Check created event', function () {    \r",
+							"    const rigEvent = rigEventArray.find(element => element.id === eventID);\r",
+							"    pm.expect(rigEvent.text,`Rig event text \"${rigEvent.text}\" should be equal to \"${rigEventText}\"`).to.equal(rigEventText);\r",
+							"    pm.expect(rigEvent.rigID,`Rig event rigID \"${rigEvent.rigID}\" should be equal to \"${rigID}\"`).to.equal(rigID);\r",
+							"    pm.expect(rigEvent.type, `Rig event type \"${rigEvent.type}\" should be equal to \"11\"`).to.equal(11);\r",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"type": "text",
+						"value": "Bearer {{accessToken}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"types\" : [],\n\t\"rigIDs\": [\"{{testRigID}}\"],\n\t\"offset\" : 0,\n\t\"count\" : 20\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/rigEvent",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"rigEvent"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update event",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('Response Status code from \"/api/rigEvent/update\" is 200', function () {\r",
+							"    pm.response.to.be.ok;\r",
+							"});\r",
+							"\r",
+							"var rigID = pm.environment.get(\"testRigID\");\r",
+							"var rigEventID = pm.environment.get(\"eventID\");\r",
+							"var updatedText = pm.environment.get(\"rigEventText\") + \"-updated\";\r",
+							"pm.test('Response body from \"/api/rigEvent/update\" contains rig event array', function () {\r",
+							"    if (pm.response.to.have.body()) {\r",
+							"        var rigEvent = pm.response.json();\r",
+							"        pm.expect(rigEvent.id, `Rig event id \"${rigEvent.id}\" should be not empty`).to.equal(rigEventID);\r",
+							"        pm.expect(rigEvent.rigID,`Rig event rigID \"${rigEvent.rigID}\" should be equal to \"${rigID}\"`).to.equal(rigID);\r",
+							"        pm.expect(rigEvent.text, `Rig event text \"${rigEvent.text}\" should be equal to \"${updatedText}\"`).to.equal(updatedText);\r",
+							"        pm.expect(rigEvent.type, `Rig event type \"${rigEvent.type}\" should be equal to \"11\"`).to.equal(11);\r",
+							"    }\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"type": "text",
+						"value": "Bearer {{accessToken}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"id\": \"{{eventID}}\",\n  \"type\": 11,\n  \"timestamp\": \"{{eventCreatedTime}}\",\n  \"text\": \"{{rigEventText}}-updated\",\n  \"rigID\": \"{{testRigID}}\"\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/rigEvent/update",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"rigEvent",
+						"update"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Find filtered events",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('Response Status code from \"/api/rigevent\" is 200', function () {\r",
+							"    pm.response.to.be.ok;\r",
+							"});\r",
+							"\r",
+							"var rigEventArray = []\r",
+							"pm.test('Response body from \"/api/rigevent\" contains valid rig event array', function () {\r",
+							"    if (pm.response.to.have.body()) {\r",
+							"        rigEventArray = pm.response.json().items;\r",
+							"        if(pm.expect(rigEventArray).to.be.an('array').that.is.not.empty) {\r",
+							"            const notUserType = rigEventArray.find(element => element.type !== 11);\r",
+							"            pm.expect(notUserType, \"Should be only type = '11'\").is.undefined\r",
+							"        }\r",
+							"    }\r",
+							"});\r",
+							"\r",
+							"var rigID = pm.environment.get(\"testRigID\");\r",
+							"var eventID = pm.environment.get(\"eventID\");\r",
+							"var updatedText = pm.environment.get(\"rigEventText\") + \"-updated\";\r",
+							"pm.test('Check updated event', function () {    \r",
+							"    const rigEvent = rigEventArray.find(element => element.id === eventID);\r",
+							"    pm.expect(rigEvent.text,`Rig event text \"${rigEvent.text}\" should be equal to \"${updatedText}\"`).to.equal(updatedText);\r",
+							"    pm.expect(rigEvent.rigID,`Rig event rigID \"${rigEvent.rigID}\" should be equal to \"${rigID}\"`).to.equal(rigID);\r",
+							"    pm.expect(rigEvent.type, `Rig event type \"${rigEvent.type}\" should be equal to \"11\"`).to.equal(11);\r",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"type": "text",
+						"value": "Bearer {{accessToken}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"types\" : [11],\n\t\"rigIDs\": [\"{{testRigID}}\"],\n\t\"offset\" : 0,\n\t\"count\" : 20\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/rigEvent",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"rigEvent"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete event",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('Response Status code from \"/api/rigEvent/delete\" is 200', function () {\r",
+							"    pm.response.to.be.ok;\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"type": "text",
+						"value": "Bearer {{accessToken}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "[\"{{eventID}}\"]"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/rigEvent/delete",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"rigEvent",
+						"delete"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Verify that event deleted",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('Response Status code from \"/api/rigevent\" is 200', function () {\r",
+							"    pm.response.to.be.ok;\r",
+							"});\r",
+							"\r",
+							"var eventID = pm.environment.get(\"eventID\");\r",
+							"pm.test('Response body from \"/api/rigevent\" contains rig event array', function () {\r",
+							"    if (pm.response.to.have.body()) {\r",
+							"        var rigEventArray = pm.response.json().items;\r",
+							"        if(pm.expect(rigEventArray).to.be.an('array').that.is.not.empty) {\r",
+							"            const deletedEvent = rigEventArray.find(element => element.id === eventID);\r",
+							"            pm.expect(deletedEvent, \"Should be deleted\").is.undefined\r",
+							"        }\r",
+							"    }\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"type": "text",
+						"value": "Bearer {{accessToken}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"types\" : [],\n\t\"rigIDs\": [\"{{testRigID}}\"],\n\t\"offset\" : 0,\n\t\"count\" : 20\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/rigEvent",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"rigEvent"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

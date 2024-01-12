@@ -1,0 +1,561 @@
+{
+	"info": {
+		"_postman_id": "d14be7df-8332-40c8-ab86-6b737617378a",
+		"name": "PosPool",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "17640427"
+	},
+	"item": [
+		{
+			"name": "BlockChainInfo",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('Response Status code from \"/api/dictionary/GetBlockChainInfo\" is 200', function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"pm.test('Response body contains info about work of pool', function () {\r",
+							"    pm.response.to.have.body()\r",
+							"\r",
+							"    let blockChainInfo = pm.response.json();\r",
+							"\r",
+							"    let poolFee = parseFloat(pm.environment.get(\"poolFee\"))\r",
+							"    let poolDifficulty = parseInt(pm.environment.get(\"poolDifficulty\"))\r",
+							"    let minimumPayout = parseFloat(pm.environment.get(\"minimumPayout\"))\r",
+							"    let confirmationCount = parseInt(pm.environment.get(\"confirmationCount\"))\r",
+							"\r",
+							"    pm.expect(blockChainInfo.poolFee).to.be.equal(poolFee);\r",
+							"    pm.expect(blockChainInfo.poolDifficulty).to.be.equal(poolDifficulty);\r",
+							"    pm.expect(blockChainInfo.minimumPayout).to.be.equal(minimumPayout);\r",
+							"    pm.expect(blockChainInfo.confirmationCount).to.be.equal(confirmationCount);\r",
+							"})\r",
+							"\r",
+							"pm.test('Body of the response from \"/api/blockchain/GetBlockChainInfo\" contains correct strings', function () {\r",
+							"    tests[\"Response contains string Pool fee\"] = responseBody.has('poolFee');\r",
+							"    tests[\"Response contains string Pool difficulty\"] = responseBody.has('poolDifficulty');\r",
+							"    tests[\"Response contains string Minimum payout\"] = responseBody.has('minimumPayout');\r",
+							"    tests[\"Response contains string Average block time\"] = responseBody.has('averageBlockTime');\r",
+							"    tests[\"Response contains string Average block reward\"] = responseBody.has('averageBlockReward');\r",
+							"    tests[\"Response contains string Confirmation count\"] = responseBody.has('confirmationCount');\r",
+							"    tests[\"Response contains string Block explorer\"] = responseBody.has('blockExplorer');\r",
+							"    tests[\"Response contains string Transaction explorer\"] = responseBody.has('transactionExplorer');\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrlPool}}/api/blockchain/GetBlockChainInfo?type={{blockChainType}}",
+					"host": [
+						"{{baseUrlPool}}"
+					],
+					"path": [
+						"api",
+						"blockchain",
+						"GetBlockChainInfo"
+					],
+					"query": [
+						{
+							"key": "type",
+							"value": "{{blockChainType}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get hashrate statistic for the last 1 hour.",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('Response Status code from \"/api/telemetry/GetHashrateStatisticBatch\" is 200', function () {\r",
+							"    pm.response.to.be.ok;\r",
+							"});\r",
+							"    \r",
+							"pm.test('Response body contains correctly hashrate statistic for the last 1 hour', () => {\r",
+							"    pm.response.to.have.body()\r",
+							"    \r",
+							"    let datasetsForLastOneHour = pm.response.json();\r",
+							"    let blockСhainType = parseInt(pm.environment.get(\"blockChainType\"))\r",
+							"    pm.expect(datasetsForLastOneHour.blockchain).to.be.equal(blockСhainType);\r",
+							"    \r",
+							"    let environment = pm.environment.get(\"baseUrlPool\") === 'https://etc.piratespool.cc';\r",
+							"    if (environment) {\r",
+							"        pm.expect(datasetsForLastOneHour.datasets.length).equal(7);\r",
+							"        pm.expect(datasetsForLastOneHour.datasets[0].h, \"Check that hashrate doesn't eql 0\").is.not.eql(0);\r",
+							"    }\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"let timeNow = new Date();\r",
+							"let timeNowMinusOneHour = new Date(timeNow - 3600000);\r",
+							"\r",
+							"pm.environment.set(\"dateFrom\", timeNowMinusOneHour.toISOString());\r",
+							"pm.environment.set(\"dateTo\", timeNow.toISOString());"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"BeginDate\": \"{{dateFrom}}\",\r\n    \"EndDate\": \"{{dateTo}}\",\r\n    \"blockchain\": {{blockChainType}},\r\n    \"Type\": 0\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrlPool}}/api/telemetry/GetHashrateStatisticBatch",
+					"host": [
+						"{{baseUrlPool}}"
+					],
+					"path": [
+						"api",
+						"telemetry",
+						"GetHashrateStatisticBatch"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get hashrate statistic of pool for the last 10 min.",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('Response Status code from \"/api/telemetry/GetHashrateStatisticBatch\" is 200', function () {\r",
+							"    pm.response.to.be.ok;\r",
+							"});\r",
+							"\r",
+							"pm.test('Response body contains correctly hashrate statistic for the last 10 minutes', () => {\r",
+							"    pm.response.to.have.body()\r",
+							"\r",
+							"    let datasetsForLastTenMin = pm.response.json();\r",
+							"    let blockСhainType = parseInt(pm.environment.get(\"blockChainType\"))\r",
+							"    pm.expect(datasetsForLastTenMin.blockchain).to.be.equal(blockСhainType);\r",
+							"\r",
+							"    let environment = pm.environment.get(\"baseUrlPool\") === 'https://etc.piratespool.cc';\r",
+							"    if (environment) {\r",
+							"        pm.expect(datasetsForLastTenMin.datasets.length).equal(2);\r",
+							"        pm.expect(datasetsForLastTenMin.datasets[0].h, \"Check that hashrate doesn't eql 0\").is.not.eql(0);\r",
+							"    }\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"let timeNow = new Date();\r",
+							"let timeNowMinusTenMin = new Date(timeNow - 600000);\r",
+							"\r",
+							"pm.environment.set(\"dateFrom\", timeNowMinusTenMin.toISOString());\r",
+							"pm.environment.set(\"dateTo\", timeNow.toISOString());"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"BeginDate\": \"{{dateFrom}}\",\r\n    \"EndDate\": \"{{dateTo}}\",\r\n    \"blockchain\": {{blockChainType}},\r\n    \"Type\": 0\r\n}\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrlPool}}/api/telemetry/GetHashrateStatisticBatch",
+					"host": [
+						"{{baseUrlPool}}"
+					],
+					"path": [
+						"api",
+						"telemetry",
+						"GetHashrateStatisticBatch"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Blocks contains correctly strings.",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('Response Status code from \"/api/telemetry/GetBlockStatisticBatch\" is 200', function () {\r",
+							"    pm.response.to.be.ok;\r",
+							"});\r",
+							"\r",
+							"pm.test('Body of the response from \"/api/telemetry/GetBlockStatisticBatch\" contains correct strings', function () {\r",
+							"    pm.response.to.have.body()\r",
+							"    tests[\"Response contains string height\"] = responseBody.has('height');\r",
+							"    tests[\"Response contains string date\"] = responseBody.has('timestamp');\r",
+							"    tests[\"Response contains string reward\"] = responseBody.has('reward');\r",
+							"    tests[\"Response contains string difficulty\"] = responseBody.has('difficulty');\r",
+							"    tests[\"Response contains string luck\"] = responseBody.has('luck');\r",
+							"    tests[\"Response contains string blockchain\"] = responseBody.has('blockchain');\r",
+							"    tests[\"Response contains string blockHash\"] = responseBody.has('blockHash');\r",
+							"    tests[\"Response contains string status\"] = responseBody.has('status');\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"count\": 2,\r\n    \"blockchain\": {{blockChainType}}\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrlPool}}/api/telemetry/GetBlockStatisticsBatch",
+					"host": [
+						"{{baseUrlPool}}"
+					],
+					"path": [
+						"api",
+						"telemetry",
+						"GetBlockStatisticsBatch"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get last block id and block reward has correctly value.",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('Response Status code from \"/api/telemetry/GetBlockStatisticsBatch\" is 200', function () {\r",
+							"    pm.response.to.be.ok;\r",
+							"});\r",
+							"\r",
+							"pm.test('Get last block and block has correctly reward', function () { \r",
+							"    pm.response.to.have.body()\r",
+							"\r",
+							"    let lastBlock = pm.response.json();\r",
+							"    pm.environment.set(\"lastBlockHeight\", lastBlock[0].height);\r",
+							"    pm.environment.set(\"lastBlockTime\", lastBlock[0].timestamp);\r",
+							"    let lastBlockReward = parseFloat(lastBlock[0].reward);\r",
+							"    let reward = parseFloat(pm.environment.get(\"reward\"));\r",
+							"    let uncleReward = parseFloat(pm.environment.get(\"uncleReward\"));\r",
+							"\r",
+							"     if (lastBlockReward != uncleReward) {\r",
+							"        pm.expect(reward).most(lastBlockReward)\r",
+							"    } \r",
+							" \r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"count\": 1,\r\n    \"blockchain\": {{blockChainType}}\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrlPool}}/api/telemetry/GetBlockStatisticsBatch",
+					"host": [
+						"{{baseUrlPool}}"
+					],
+					"path": [
+						"api",
+						"telemetry",
+						"GetBlockStatisticsBatch"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Check last  block  not equal previous block.",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('Response Status code from \"/api/telemetry/GetBlockStatisticBatch\" is 200', function () {\r",
+							"    pm.response.to.be.ok;\r",
+							"});\r",
+							"\r",
+							"pm.test('Last block not equal previous block', function () {\r",
+							"    pm.response.to.have.body()\r",
+							"    let blocks = pm.response.json();\r",
+							"\r",
+							"    let lastBlockHeight = pm.environment.get(\"lastBlockHeight\");\r",
+							"    let lastBlockTime = pm.environment.get(\"lastBlockTime\")\r",
+							"    let previousBlock = null\r",
+							"    for(const block of blocks) {\r",
+							"        if (block.height != \"lastBlockHeight\") {\r",
+							"           previousBlock = block\r",
+							"        }\r",
+							"    }\r",
+							"\r",
+							"    pm.expect(previousBlock.height).is.not.equal(lastBlockHeight);\r",
+							"    pm.expect(Date.parse(lastBlockTime)).to.be.above(Date.parse(previousBlock.timestamp));\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"count\": 2,\r\n    \"blockchain\": {{blockChainType}}\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrlPool}}/api/telemetry/GetBlockStatisticsBatch",
+					"host": [
+						"{{baseUrlPool}}"
+					],
+					"path": [
+						"api",
+						"telemetry",
+						"GetBlockStatisticsBatch"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get hashrate statistic address for the last 1 hour.",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('Response Status code from \"/api/telemetry/GetHashrateStatisticBatch\" is 200', function () {\r",
+							"    pm.response.to.be.ok;\r",
+							"});\r",
+							"    \r",
+							"pm.test('Check from \"/api/telemetry/GetHashrateStatisticBatch\" contains correctly data per address for the last 1 hour', () => {\r",
+							"    pm.response.to.have.body()\r",
+							"\r",
+							"    let datasetsForLastOneHour = pm.response.json();\r",
+							"    let blockСhainType = parseInt(pm.environment.get(\"blockChainType\"))\r",
+							"    pm.expect(datasetsForLastOneHour.blockchain).to.be.equal(blockСhainType);\r",
+							" \r",
+							"    let environment = pm.environment.get(\"baseUrlPool\") === 'https://etc.piratespool.cc';\r",
+							"    if (environment) {\r",
+							"        pm.expect(datasetsForLastOneHour.datasets.length).equal(7);\r",
+							"        pm.expect(datasetsForLastOneHour.datasets[0].h, \"Check that hashrate doesn't eql 0\").is.not.eql(0);\r",
+							"    }\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"let timeNow = new Date();\r",
+							"let timeNowMinusOneHour = new Date(timeNow - 3600000);\r",
+							"\r",
+							"pm.environment.set(\"dateFrom\", timeNowMinusOneHour.toISOString());\r",
+							"pm.environment.set(\"dateTo\", timeNow.toISOString());"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"beginDate\": \"{{dateFrom}}\",\r\n  \"endDate\": \"{{dateTo}}\",\r\n  \"type\": 0,\r\n  \"blockchain\": {{blockChainType}},\r\n  \"address\": \"0xed6dc448e5c5574f0e501758a23908b6595884f2\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrlPool}}/api/Telemetry/GetHashrateStatisticBatch",
+					"host": [
+						"{{baseUrlPool}}"
+					],
+					"path": [
+						"api",
+						"Telemetry",
+						"GetHashrateStatisticBatch"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get hashrate statistic address for the last 10 min.",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('Response Status code from \"/api/telemetry/GetHashrateStatisticBatch\" is 200', function () {\r",
+							"    pm.response.to.be.ok;\r",
+							"});\r",
+							"\r",
+							"pm.test('Check from \"/api/telemetry/GetHashrateStatisticBatch\" contains correctly data per address for the last 10 minutes', function () {\r",
+							"    pm.response.to.have.body()\r",
+							"\r",
+							"    let datasetsForLastTenMin = pm.response.json();\r",
+							"\r",
+							"    let environment = pm.environment.get(\"baseUrlPool\") === 'https://etc.piratespool.cc';\r",
+							"    if (environment) {\r",
+							"         pm.expect(datasetsForLastTenMin.datasets.length).equal(2);\r",
+							"         pm.expect(datasetsForLastTenMin.datasets[0].h, \"Check that hashrate doesn't equal 0\").is.not.equal(0);\r",
+							"    }\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"let timeNow = new Date();\r",
+							"let timeNowMinusTenMin = new Date(timeNow - 600000);\r",
+							"\r",
+							"pm.environment.set(\"dateFrom\", timeNowMinusTenMin.toISOString());\r",
+							"pm.environment.set(\"dateTo\", timeNow.toISOString());"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"beginDate\": \"{{dateFrom}}\",\r\n  \"endDate\": \"{{dateTo}}\",\r\n  \"type\": 0,\r\n  \"blockchain\": {{blockChainType}},\r\n  \"address\": \"0xed6dc448e5c5574f0e501758a23908b6595884f2\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrlPool}}/api/telemetry/GetHashrateStatisticBatch",
+					"host": [
+						"{{baseUrlPool}}"
+					],
+					"path": [
+						"api",
+						"telemetry",
+						"GetHashrateStatisticBatch"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

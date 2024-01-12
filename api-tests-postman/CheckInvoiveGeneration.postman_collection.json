@@ -1,0 +1,1259 @@
+{
+	"info": {
+		"_postman_id": "b760c425-a9bc-4942-a721-c319a7d8c4d6",
+		"name": "CheckInvoiveGeneration",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "17640427"
+	},
+	"item": [
+		{
+			"name": "Authorization",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('Response Status code from \"/security/token\" is 200', function () {\r",
+							"    pm.response.to.be.ok;\r",
+							"    if (pm.response.to.have.body()) {\r",
+							"        let responseJsonData = pm.response.json();\r",
+							"        pm.environment.set(\"accessToken\", responseJsonData.accessToken);\r",
+							"    }\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"login\": \"{{existentUserLogin}}\",\r\n  \"password\": \"{{existentUserPass}}\",\r\n  \"recaptchaResponse\": \"fake_captcha\"\r\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/security/token",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"security",
+						"token"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Authorization Admin",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('Response Status code from \"/admin/Account/Login\" is 200', function () {\r",
+							"    pm.response.to.have.status(200)\r",
+							"});\r",
+							"\r",
+							"pm.test('Response header from \"admin/Account/Login\" contains access token', function () {\r",
+							"\r",
+							"    pm.response.to.have.header\r",
+							"    let response = pm.response.toJSON()\r",
+							"    let accessTokenAdmin = null\r",
+							"    for(let header of response.header) {\r",
+							"        if(header.value.match(/Mcrypto.Administration.AccessToken*/)) {\r",
+							"            accessTokenAdmin = header\r",
+							"        }\r",
+							"    }\r",
+							"    let accessTokenAdminSplitted = accessTokenAdmin.value.split(\";\")\r",
+							"    pm.environment.set(\"accessTokenAdmin\", accessTokenAdminSplitted[0])\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"followRedirects": false,
+				"disableCookies": true,
+				"disabledSystemHeaders": {}
+			},
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Cookie",
+						"value": "Mcrypto.Administration.AntiforgeryToken=CfDJ8BANqdYenMJOtScqF-ThmD4lHQ1epGF1OrTd_npi5cTArur8FzdHB0CNauH6ALPj5b5X9YHssx-FHFEVIAnnTxVFyV_8blUTN1Zp70ko3225pyoxA0_OXoiMPS26o4Lx6IQtVipAiWX4PZlFJDQnBRM",
+						"type": "text"
+					},
+					{
+						"key": "Cookie",
+						"value": "MCRYPTO-ANTIFORGERY=CfDJ8BANqdYenMJOtScqF-ThmD7Wxaxigw31551epEzLdSPv5ONPOQAwxNLRv4D10gqKeqQcMzCnwx1kdsiKxsZxNAdkDtR605IxZmBOL2b-XZDG2_chZvckM-LNkjVI8NkAksMSEOYxvOOLpKYBxUvK3oSFvMMDrUO_sNAhzYUoZHx00sp8ORQ9k_cCWZfLJWU6LA",
+						"type": "text"
+					},
+					{
+						"key": "mcrypto-antiforgery",
+						"value": "CfDJ8BANqdYenMJOtScqF-ThmD4kricNi3W0lIhmD_Y57jBq0AvCJHACE_0miDVTEKDOVNatm-ZEdbnhLcbo2sAKE9HVSub34ZxLoUXnHpDQJWYlPzDreBNX3sMaDoGlvANsXjOkt6rJIJ6xPtrMtD-QijQ",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"password\": \"{{existentAdminPass}}\",\r\n    \"userName\": \"{{existentAdminLogin}}\",\r\n    \"rememberMe\": true\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrlAdmin}}/admin/Account/Login",
+					"host": [
+						"{{baseUrlAdmin}}"
+					],
+					"path": [
+						"admin",
+						"Account",
+						"Login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Invoice contains correct strings.",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('Response Status code from \"/admin/Invoice/Find/\" is 200', function () {\r",
+							"    pm.response.to.be.ok;\r",
+							"});\r",
+							"\r",
+							"pm.test('Body of the response from \"admin/Invoice/Find\" contains the desired strings and the desired array', function () { {\r",
+							"\r",
+							"    tests[\"Responce contains string id\"] = responseBody.has('id');\r",
+							"    tests[\"Responce contains string minerName\"] = responseBody.has('minerName');\r",
+							"    tests[\"Responce contains string date\"] = responseBody.has('date');\r",
+							"    tests[\"Responce contains array rigIDs\"] = responseBody.has('rigIDs');\r",
+							"    tests[\"Responce contains string estimatePayment\"] = responseBody.has('estimatePayment');\r",
+							"    tests[\"Responce contains string factPayment\"] = responseBody.has('factPayment');\r",
+							"    tests[\"Responce contains string isPaid\"] = responseBody.has('isPaid');\r",
+							"    }\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"let todayDate = new Date();\r",
+							"let yesterdayDate = new Date(todayDate - 86400000);\r",
+							"\r",
+							"pm.environment.set(\"dateFrom\", yesterdayDate.toISOString());\r",
+							"pm.environment.set(\"dateTo\", todayDate.toISOString());\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableCookies": true,
+				"followRedirects": false
+			},
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "mcrypto-antiforgery",
+						"value": "CfDJ8BANqdYenMJOtScqF-ThmD7Wxaxigw31551epEzLdSPv5ONPOQAwxNLRv4D10gqKeqQcMzCnwx1kdsiKxsZxNAdkDtR605IxZmBOL2b-XZDG2_chZvckM-LNkjVI8NkAksMSEOYxvOOLpKYBxUvK3oSFvMMDrUO_sNAhzYUoZHx00sp8ORQ9k_cCWZfLJWU6LA",
+						"type": "text"
+					},
+					{
+						"key": "Cookie",
+						"value": "Mcrypto.Administration.AntiforgeryToken=CfDJ8BANqdYenMJOtScqF-ThmD4lHQ1epGF1OrTd_npi5cTArur8FzdHB0CNauH6ALPj5b5X9YHssx-FHFEVIAnnTxVFyV_8blUTN1Zp70ko3225pyoxA0_OXoiMPS26o4Lx6IQtVipAiWX4PZlFJDQnBRM",
+						"type": "text"
+					},
+					{
+						"key": "Cookie",
+						"value": "{{accessTokenAdmin}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"dateFrom\": \"{{dateFrom}}\",\r\n\t\"dateTo\": \"{{dateTo}}\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrlAdmin}}/admin/Invoice/Find/",
+					"host": [
+						"{{baseUrlAdmin}}"
+					],
+					"path": [
+						"admin",
+						"Invoice",
+						"Find",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Draft transaction.",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('Response Status code from \"/api/Transaction\" is 200', function () {\r",
+							"    pm.response.to.be.ok;\r",
+							"});\r",
+							"\r",
+							"pm.test('Response body from \"/api/Transaction\" contains draft transaction', function () {\r",
+							"    pm.response.to.have.body()\r",
+							"    let transactionsArray = pm.response.json().items;\r",
+							"    pm.expect(transactionsArray).to.be.an('array').that.is.not.empty;\r",
+							"\r",
+							"    let transactionIsDraft = null\r",
+							"    for(const transaction of transactionsArray) {\r",
+							"        if (transaction.status == 4 && transaction.type == 6) {\r",
+							"           transactionIsDraft = transaction\r",
+							"        }\r",
+							"    }\r",
+							"\r",
+							"    pm.expect(transactionIsDraft).is.not.null\r",
+							"    pm.environment.set(\"transactionIsDraft\", transactionIsDraft)\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"type": "text",
+						"value": "Bearer {{accessToken}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"coinTypes\": [],\n    \"types\": [],\n    \"offset\": 0,\n    \"pageSize\": 300\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/Transaction",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"Transaction"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Invoice draft.",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"let todayDate = new Date();\r",
+							"let yesterdayDate = new Date(todayDate - 86400000);\r",
+							"\r",
+							"pm.environment.set(\"dateFrom\", yesterdayDate.toISOString());\r",
+							"pm.environment.set(\"dateTo\", todayDate.toISOString());\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('Response Status code from \"/admin/Invoice/Find/\" is 200', function () {\r",
+							"    pm.response.to.be.ok;\r",
+							"});\r",
+							"\r",
+							"pm.test('Response body from \"/admin/Invoice/Find/\" contains invoice draft', function () {\r",
+							"    pm.response.to.have.body()\r",
+							"    let invoiceArray = pm.response.json();\r",
+							"    pm.expect(invoiceArray).to.be.an('array').that.is.not.empty;\r",
+							"\r",
+							"    let minerName = pm.environment.get(\"minerName\")\r",
+							"    let transactionIsDraft = pm.environment.get(\"transactionIsDraft\")\r",
+							"    let invoiceIsDraft\r",
+							"    for(const invoice of invoiceArray) {\r",
+							"        if (invoice.isPaid == false && invoice.minerName == minerName) {\r",
+							"        invoiceIsDraft = invoice\r",
+							"        }\r",
+							"    }\r",
+							"\r",
+							"    pm.expect(invoiceIsDraft).is.not.null\r",
+							"    pm.environment.set(\"invoiceIsDraft\", invoiceIsDraft)\r",
+							"    pm.expect(invoiceIsDraft.estimatePayment).to.be.equal(transactionIsDraft.source.amount)\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"followRedirects": false,
+				"disableCookies": true
+			},
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "mcrypto-antiforgery",
+						"value": "CfDJ8BANqdYenMJOtScqF-ThmD7Wxaxigw31551epEzLdSPv5ONPOQAwxNLRv4D10gqKeqQcMzCnwx1kdsiKxsZxNAdkDtR605IxZmBOL2b-XZDG2_chZvckM-LNkjVI8NkAksMSEOYxvOOLpKYBxUvK3oSFvMMDrUO_sNAhzYUoZHx00sp8ORQ9k_cCWZfLJWU6LA",
+						"type": "text"
+					},
+					{
+						"key": "Cookie",
+						"value": "Mcrypto.Administration.AntiforgeryToken=CfDJ8BANqdYenMJOtScqF-ThmD4lHQ1epGF1OrTd_npi5cTArur8FzdHB0CNauH6ALPj5b5X9YHssx-FHFEVIAnnTxVFyV_8blUTN1Zp70ko3225pyoxA0_OXoiMPS26o4Lx6IQtVipAiWX4PZlFJDQnBRM",
+						"type": "text"
+					},
+					{
+						"key": "Cookie",
+						"value": "{{accessTokenAdmin}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"dateFrom\": \"{{dateFrom}}\",\r\n\t\"dateTo\": \"{{dateTo}}\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrlAdmin}}/admin/Invoice/Find/",
+					"host": [
+						"{{baseUrlAdmin}}"
+					],
+					"path": [
+						"admin",
+						"Invoice",
+						"Find",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get blocked balance after create invoice.",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('Response Status code from \"/api/Wallets/\" is 200', function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"pm.test('Response body from \"/api/Wallets/\" contains blocked balance after create invoice', function () {\r",
+							"    pm.response.to.have.body()\r",
+							"    let walletsArray = pm.response.json();\r",
+							"    pm.expect(walletsArray).to.be.an('array').that.is.not.empty;\r",
+							"\r",
+							"    let transactionIsDraft = pm.environment.get(\"transactionIsDraft\") \r",
+							"    let invoiceIsDraft = pm.environment.get(\"invoiceIsDraft\")\r",
+							"    let usdtAccount = null\r",
+							"    for(const account of walletsArray) {\r",
+							"        if (account.isMain && account.accounts[44]) {\r",
+							"            usdtAccount = account\r",
+							"        }\r",
+							"    } \r",
+							"\r",
+							"    pm.expect(usdtAccount).is.not.null\r",
+							"    pm.environment.set(\"usdtAccount\", usdtAccount)\r",
+							"    pm.expect(usdtAccount.accounts[44].blockedBalance).to.be.equal(transactionIsDraft.source.amount)\r",
+							"    pm.expect(usdtAccount.accounts[44].blockedBalance).to.be.equal(invoiceIsDraft.estimatePayment)\r",
+							"    \r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{accessToken}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{baseUrl}}/api/Wallets",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"Wallets"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Invoice paid.",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"let todayDate = new Date();\r",
+							"let yesterdayDate = new Date(todayDate - 86400000);\r",
+							"\r",
+							"pm.environment.set(\"dateFrom\", yesterdayDate.toISOString());\r",
+							"pm.environment.set(\"dateTo\", todayDate.toISOString());\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('Response Status code from \"/admin/Invoice/Find/\" is 200', function () {\r",
+							"    pm.response.to.be.ok;\r",
+							"});\r",
+							"\r",
+							"pm.test('Response body from \"/admin/Invoice/Find/\" contains invoice paid', function () {\r",
+							"    pm.response.to.have.body()\r",
+							"    let invoiceArray = pm.response.json();\r",
+							"    pm.expect(invoiceArray).to.be.an('array').that.is.not.empty;\r",
+							"\r",
+							"    let invoiceIsPaid\r",
+							"    for(const invoice of invoiceArray) {\r",
+							"        if (invoice.factPayment >= 0.0 && invoice.isPaid == true) {\r",
+							"        invoiceIsPaid = invoice\r",
+							"        }\r",
+							"    }\r",
+							"    pm.expect(invoiceIsPaid).is.not.null\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"followRedirects": false,
+				"disableCookies": true
+			},
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "mcrypto-antiforgery",
+						"value": "CfDJ8BANqdYenMJOtScqF-ThmD7Wxaxigw31551epEzLdSPv5ONPOQAwxNLRv4D10gqKeqQcMzCnwx1kdsiKxsZxNAdkDtR605IxZmBOL2b-XZDG2_chZvckM-LNkjVI8NkAksMSEOYxvOOLpKYBxUvK3oSFvMMDrUO_sNAhzYUoZHx00sp8ORQ9k_cCWZfLJWU6LA",
+						"type": "text"
+					},
+					{
+						"key": "Cookie",
+						"value": "Mcrypto.Administration.AntiforgeryToken=CfDJ8BANqdYenMJOtScqF-ThmD4lHQ1epGF1OrTd_npi5cTArur8FzdHB0CNauH6ALPj5b5X9YHssx-FHFEVIAnnTxVFyV_8blUTN1Zp70ko3225pyoxA0_OXoiMPS26o4Lx6IQtVipAiWX4PZlFJDQnBRM",
+						"type": "text"
+					},
+					{
+						"key": "Cookie",
+						"value": "{{accessTokenAdmin}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"dateFrom\": \"{{dateFrom}}\",\r\n\t\"dateTo\": \"{{dateTo}}\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrlAdmin}}/admin/Invoice/Find/",
+					"host": [
+						"{{baseUrlAdmin}}"
+					],
+					"path": [
+						"admin",
+						"Invoice",
+						"Find",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Check create invoice in account without rigs.",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"let todayDate = new Date();\r",
+							"let yesterdayDate = new Date(todayDate - 86400000);\r",
+							"\r",
+							"pm.environment.set(\"dateFrom\", yesterdayDate.toISOString());\r",
+							"pm.environment.set(\"dateTo\", todayDate.toISOString());\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('Response Status code from \"/admin/Invoice/Find/\" is 200', function () {\r",
+							"    pm.response.to.be.ok;\r",
+							"});\r",
+							"\r",
+							"pm.test('Response body from \"/admin/Invoice/Find/\" contains check create invoice in account without rigs ', function () {\r",
+							"    pm.response.to.have.body()\r",
+							"    const invoiceArray = pm.response.json();\r",
+							"    pm.expect(invoiceArray).to.be.an('array').that.is.not.empty;\r",
+							"\r",
+							"    let createInvoiceWithoutRigs = null\r",
+							"    let minerNameWithoutRigs = pm.environment.get(\"minerNameWithoutRigs\")\r",
+							"    for(const invoice of invoiceArray) {\r",
+							"        if (invoice.isPaid == false && invoice.minerName == minerNameWithoutRigs){\r",
+							"            createInvoiceWithoutRigs = invoice\r",
+							"        } \r",
+							"    }\r",
+							"\r",
+							"    pm.expect(createInvoiceWithoutRigs).is.not.null\r",
+							"    pm.expect(createInvoiceWithoutRigs.rigIDs).is.empty\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableCookies": true,
+				"followRedirects": false
+			},
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "mcrypto-antiforgery",
+						"value": "CfDJ8BANqdYenMJOtScqF-ThmD7Wxaxigw31551epEzLdSPv5ONPOQAwxNLRv4D10gqKeqQcMzCnwx1kdsiKxsZxNAdkDtR605IxZmBOL2b-XZDG2_chZvckM-LNkjVI8NkAksMSEOYxvOOLpKYBxUvK3oSFvMMDrUO_sNAhzYUoZHx00sp8ORQ9k_cCWZfLJWU6LA",
+						"type": "text"
+					},
+					{
+						"key": "Cookie",
+						"value": "Mcrypto.Administration.AntiforgeryToken=CfDJ8BANqdYenMJOtScqF-ThmD4lHQ1epGF1OrTd_npi5cTArur8FzdHB0CNauH6ALPj5b5X9YHssx-FHFEVIAnnTxVFyV_8blUTN1Zp70ko3225pyoxA0_OXoiMPS26o4Lx6IQtVipAiWX4PZlFJDQnBRM",
+						"type": "text"
+					},
+					{
+						"key": "Cookie",
+						"value": "{{accessTokenAdmin}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"dateFrom\": \"{{dateFrom}}\",\r\n\t\"dateTo\": \"{{dateTo}}\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrlAdmin}}/admin/Invoice/Find/",
+					"host": [
+						"{{baseUrlAdmin}}"
+					],
+					"path": [
+						"admin",
+						"Invoice",
+						"Find",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GenerateNewFarmShortCode",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('Response Status code from \"/api/Farm/GetFarmShortCode\" is 200', function () {\r",
+							"    pm.response.to.have.status(200)\r",
+							"});\r",
+							"\r",
+							"pm.test('Response body from \"/api/Farm/GetFarmShortCode\", generate code, contains correct data', function () {\r",
+							"    pm.response.to.have.body()\r",
+							"    const activationCodeResponse = pm.response.json()\r",
+							"    pm.expect(activationCodeResponse).to.be.an('object').that.is.not.empty\r",
+							"\r",
+							"    const farmId = pm.environment.get(\"farmId\")\r",
+							"    pm.expect(activationCodeResponse.farmID).to.be.equal(farmId)\r",
+							"\r",
+							"    const regexp = /[0-9]/gi\r",
+							"    const matches_array = activationCodeResponse.code.match(regexp)\r",
+							"    pm.expect(matches_array.length).to.be.equal(8)\r",
+							"\r",
+							"    pm.environment.set(\"newFarmShortCode\", activationCodeResponse.code)\r",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer  {{accessToken}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{baseUrl}}/api/Farm/GetFarmShortCode?farmID={{farmId}}&createNew=true",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"Farm",
+						"GetFarmShortCode"
+					],
+					"query": [
+						{
+							"key": "farmID",
+							"value": "{{farmId}}"
+						},
+						{
+							"key": "createNew",
+							"value": "true"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "ActivateNewRigWithActualActivationCode",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('Response Status code from \"/api/Activation/ActivateByCode\" is 201', function () {\r",
+							"    pm.response.to.have.status(201);\r",
+							"});\r",
+							"\r",
+							"pm.test('Response body from \"/api/Activation/ActivateByCode\" contains new rig ID', function () {\r",
+							"    pm.response.to.have.body()\r",
+							"    const response = pm.response.json()\r",
+							"    pm.expect(response, \"Should have rigID.\").to.haveOwnProperty(\"rigID\")\r",
+							"        .that.to.be.a('string')\r",
+							"        .and.is.not.empty\r",
+							"    pm.environment.set(\"newRigId\", response.rigID)\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"code\": \"{{newFarmShortCode}}\", \n    \"rigName\": \"{{activationTestRigName}}\"\n}\n"
+				},
+				"url": {
+					"raw": "{{urlAct}}/api/Activation/ActivateByCode",
+					"host": [
+						"{{urlAct}}"
+					],
+					"path": [
+						"api",
+						"Activation",
+						"ActivateByCode"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Regeneration invoice after add new rig",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('Response Status code from \"/admin/Invoice/Find/\" is 200', function () {\r",
+							"    pm.response.to.be.ok;\r",
+							"});\r",
+							"\r",
+							"pm.test('Response body from \"/admin/Invoice/Find/\" contains regeneration invoice after add new rig', function () {\r",
+							"    pm.response.to.have.body()\r",
+							"\r",
+							"    let invoiceArray = pm.response.json()\r",
+							"    pm.expect(invoiceArray).to.be.an('array').that.is.not.empty\r",
+							"\r",
+							"    let transactionIsDraft = pm.environment.get(\"transactionIsDraft\")\r",
+							"    let invoiceIsDraft = pm.environment.get(\"invoiceIsDraft\")\r",
+							"    let usdtAccount = pm.environment.get(\"usdtAccount\")\r",
+							"    let minerName = pm.environment.get(\"minerName\")\r",
+							"\r",
+							"    let invoiceAfterAddRig = null\r",
+							"    for(const invoice of invoiceArray) {\r",
+							"        if (invoice.isPaid == false && invoice.minerName == minerName){\r",
+							"            invoiceAfterAddRig = invoice\r",
+							"        } \r",
+							"    }\r",
+							"\r",
+							"    let retryCount = pm.environment.get(\"retryCount\")\r",
+							"    if (invoiceAfterAddRig.estimatePayment == invoiceIsDraft.estimatePayment && retryCount < 5) {\r",
+							"      retryCount++, pm.environment.set(\"retryCount\", retryCount);    postman.setNextRequest(\"Regeneration invoice after add new rig\")\r",
+							"    } else {\r",
+							"\r",
+							"    pm.environment.set(\"retryCount\", 0)\r",
+							"    pm.environment.set(\"invoiceAfterAddRig\", invoiceAfterAddRig)\r",
+							"    pm.expect(invoiceAfterAddRig.estimatePayment).to.be.greaterThan(invoiceIsDraft.estimatePayment)\r",
+							"    pm.expect(invoiceAfterAddRig.estimatePayment).to.be.greaterThan(transactionIsDraft.source.amount)\r",
+							"    pm.expect(invoiceAfterAddRig.estimatePayment).to.be.greaterThan(usdtAccount.accounts[44].blockedBalance)\r",
+							"    }\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"let todayDate = new Date();\r",
+							"let yesterdayDate = new Date(todayDate - 86400000);\r",
+							"\r",
+							"pm.environment.set(\"dateFrom\", yesterdayDate.toISOString());\r",
+							"pm.environment.set(\"dateTo\", todayDate.toISOString());\r",
+							"\r",
+							"if (!pm.environment.get(\"retryCount\")) {\r",
+							"    pm.environment.set(\"retryCount\", 0) \r",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"followRedirects": false,
+				"disableCookies": true
+			},
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Cookie",
+						"value": "Mcrypto.Administration.AntiforgeryToken=CfDJ8BANqdYenMJOtScqF-ThmD4lHQ1epGF1OrTd_npi5cTArur8FzdHB0CNauH6ALPj5b5X9YHssx-FHFEVIAnnTxVFyV_8blUTN1Zp70ko3225pyoxA0_OXoiMPS26o4Lx6IQtVipAiWX4PZlFJDQnBRM",
+						"type": "text"
+					},
+					{
+						"key": "mcrypto-antiforgery",
+						"value": "CfDJ8BANqdYenMJOtScqF-ThmD7Wxaxigw31551epEzLdSPv5ONPOQAwxNLRv4D10gqKeqQcMzCnwx1kdsiKxsZxNAdkDtR605IxZmBOL2b-XZDG2_chZvckM-LNkjVI8NkAksMSEOYxvOOLpKYBxUvK3oSFvMMDrUO_sNAhzYUoZHx00sp8ORQ9k_cCWZfLJWU6LA",
+						"type": "text"
+					},
+					{
+						"key": "Cookie",
+						"value": "{{accessTokenAdmin}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"dateFrom\": \"{{dateFrom}}\",\r\n\t\"dateTo\": \"{{dateTo}}\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrlAdmin}}/admin/Invoice/Find/",
+					"host": [
+						"{{baseUrlAdmin}}"
+					],
+					"path": [
+						"admin",
+						"Invoice",
+						"Find",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Transaction after add new rig.",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('Response Status code from \"/api/Transaction\" is 200', function () {\r",
+							"    pm.response.to.be.ok;\r",
+							"});\r",
+							"\r",
+							"pm.test('Response body from \"/api/Transaction\" contains transaction after add new rig', function () {\r",
+							"    pm.response.to.have.body()\r",
+							"    let transactionsArray = pm.response.json().items;\r",
+							"    pm.expect(transactionsArray).to.be.an('array').that.is.not.empty;\r",
+							"\r",
+							"    let transactionIsDraft = pm.environment.get(\"transactionIsDraft\")\r",
+							"    let invoiceIsDraft = pm.environment.get(\"invoiceIsDraft\")\r",
+							"    let invoiceAfterAddRig = pm.environment.get(\"invoiceAfterAddRig\")\r",
+							"    let usdtAccount = pm.environment.get(\"usdtAccount\")\r",
+							"\r",
+							"    let transactionAfterAddRig = null\r",
+							"    for(const transaction of transactionsArray) {\r",
+							"        if (transaction.status == 4 && transaction.type == 6) {\r",
+							"           transactionAfterAddRig = transaction\r",
+							"        }\r",
+							"    }\r",
+							"\r",
+							"    pm.expect(transactionAfterAddRig).is.not.null\r",
+							"    pm.environment.set(\"transactionAfterAddRig\", transactionAfterAddRig)\r",
+							"    pm.expect(transactionAfterAddRig.source.amount).to.be.greaterThan(invoiceIsDraft.estimatePayment)\r",
+							"    pm.expect(transactionAfterAddRig.source.amount).to.be.greaterThan(transactionIsDraft.source.amount)\r",
+							"    pm.expect(transactionAfterAddRig.source.amount).to.be.greaterThan(usdtAccount.accounts[44].blockedBalance)\r",
+							"    pm.expect(transactionAfterAddRig.source.amount).to.be.equal(invoiceAfterAddRig.estimatePayment)\r",
+							"    });"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"type": "text",
+						"value": "Bearer {{accessToken}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"coinTypes\": [],\n    \"types\": [],\n    \"offset\": 0,\n    \"pageSize\": 300\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/Transaction",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"Transaction"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get blocked balance after add rig.",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('Response Status code from \"/api/Wallets/\" is 200', function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"pm.test('Response body from \"/api/Wallets/\" contains changes of blocked balance', function () {\r",
+							"    pm.response.to.have.body()\r",
+							"    let walletsArray = pm.response.json();\r",
+							"    pm.expect(walletsArray).to.be.an('array').that.is.not.empty;\r",
+							"    \r",
+							"    let transactionAfterAddRig = pm.environment.get(\"transactionAfterAddRig\") \r",
+							"    let invoiceAfterAddRig = pm.environment.get(\"invoiceAfterAddRig\")\r",
+							"    let usdtAccount = pm.environment.get(\"usdtAccount\")\r",
+							"\r",
+							"    let usdtAccountAfterAddRig = null\r",
+							"    for(const account of walletsArray) {\r",
+							"        if (account.isMain && account.accounts[44]) {\r",
+							"            usdtAccountAfterAddRig = account\r",
+							"        }\r",
+							"    } \r",
+							"    pm.environment.set(\"usdtAccountAfterAddRig\", usdtAccountAfterAddRig)\r",
+							"\r",
+							"    pm.expect(usdtAccountAfterAddRig).is.not.null\r",
+							"    pm.expect(transactionAfterAddRig.source.amount).to.be.greaterThan(usdtAccount.accounts[44].blockedBalance)\r",
+							"    pm.expect(usdtAccountAfterAddRig.accounts[44].blockedBalance).to.be.equal(transactionAfterAddRig.source.amount)\r",
+							"    pm.expect(usdtAccountAfterAddRig.accounts[44].blockedBalance).to.be.equal(invoiceAfterAddRig.estimatePayment)\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{accessToken}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{baseUrl}}/api/Wallets",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"Wallets"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete activated rig.",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('Response Status code from \"DELETE /api/Rigs/delete\" is 200', function () {",
+							"    pm.response.to.be.ok;",
+							"});",
+							"",
+							"pm.test('Response body from \"DELETE /api/Rigs/delete\" contains deleted rig ID', function () {",
+							"    pm.response.to.have.body()",
+							"    const deletedRigId = pm.response.json()",
+							"    pm.expect(deletedRigId).to.be.an('array').that.is.not.empty",
+							"    ",
+							"    const activatedRigId = pm.environment.get(\"newRigId\")",
+							"    pm.expect(deletedRigId[0]).to.be.equal(activatedRigId)",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"type": "text",
+						"value": "Bearer {{accessToken}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "[\n\t\"{{newRigId}}\"\n]"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/Rigs/delete",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"Rigs",
+						"delete"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Regeneration invoice after delete rig.",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('Response Status code from \"/admin/Invoice/Find/\" is 200', function () {\r",
+							"    pm.response.to.be.ok;\r",
+							"});\r",
+							"\r",
+							"pm.test('Response body from \"/admin/Invoice/Find/\" contains regeneration invoice after delete rig', function () {\r",
+							"    pm.response.to.have.body()\r",
+							"    const invoiceArray = pm.response.json();\r",
+							"    pm.expect(invoiceArray).to.be.an('array').that.is.not.empty;\r",
+							"\r",
+							"    let transactionIsDraft = pm.environment.get(\"transactionIsDraft\")\r",
+							"    let invoiceIsDraft = pm.environment.get(\"invoiceIsDraft\")\r",
+							"    let transactionAfterAddRig = pm.environment.get(\"transactionAfterAddRig\")\r",
+							"    let invoiceAfterAddRig = pm.environment.get(\"invoiceAfterAddRig\")\r",
+							"    let usdtAccount = pm.environment.get(\"usdtAccount\")\r",
+							"    let usdtAccountAfterAddRig = pm.environment.get(\"usdtAccountAfterAddRig\")\r",
+							"    let minerName = pm.environment.get(\"minerName\")\r",
+							"\r",
+							"    let invoiceAfterDeleteRig = null\r",
+							"\r",
+							"    for(const invoice of invoiceArray) {\r",
+							"        if (invoice.isPaid == false && invoice.minerName == minerName){\r",
+							"            invoiceAfterDeleteRig = invoice\r",
+							"        } \r",
+							"    }\r",
+							"\r",
+							"    let retryCount = pm.environment.get(\"retryCount\")\r",
+							"\r",
+							"    if (invoiceAfterDeleteRig.estimatePayment == invoiceAfterAddRig.estimatePayment && retryCount < 5) {\r",
+							"    retryCount++, pm.environment.set(\"retryCount\", retryCount);    postman.setNextRequest(\"Regeneration invoice after delete rig.\")\r",
+							"    } else { \r",
+							"\r",
+							"    pm.environment.set(\"retryCount\", 0)\r",
+							"    pm.environment.set(\"invoiceAfterDeleteRig\", invoiceAfterDeleteRig)\r",
+							"    pm.expect(invoiceAfterDeleteRig.estimatePayment).to.be.equal(invoiceIsDraft.estimatePayment)\r",
+							"    pm.expect(invoiceAfterDeleteRig.estimatePayment).to.be.equal(transactionIsDraft.source.amount)\r",
+							"    pm.expect(invoiceAfterDeleteRig.estimatePayment).to.be.equal(usdtAccount.accounts[44].blockedBalance)\r",
+							"    pm.expect(invoiceAfterDeleteRig.estimatePayment).to.be.lessThan(invoiceAfterAddRig.estimatePayment)\r",
+							"    pm.expect(invoiceAfterDeleteRig.estimatePayment).to.be.lessThan(transactionAfterAddRig.source.amount)\r",
+							"    pm.expect(invoiceAfterDeleteRig.estimatePayment).to.be.lessThan(usdtAccountAfterAddRig.accounts[44].blockedBalance)\r",
+							"    } \r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"let todayDate = new Date();\r",
+							"let yesterdayDate = new Date(todayDate - 86400000);\r",
+							"\r",
+							"pm.environment.set(\"dateFrom\", yesterdayDate.toISOString());\r",
+							"pm.environment.set(\"dateTo\", todayDate.toISOString());\r",
+							"\r",
+							"if (!pm.environment.get(\"retryCount\")) {\r",
+							"    pm.environment.set(\"retryCount\", 0) \r",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"followRedirects": false,
+				"disableCookies": true
+			},
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Cookie",
+						"value": "Mcrypto.Administration.AntiforgeryToken=CfDJ8BANqdYenMJOtScqF-ThmD4lHQ1epGF1OrTd_npi5cTArur8FzdHB0CNauH6ALPj5b5X9YHssx-FHFEVIAnnTxVFyV_8blUTN1Zp70ko3225pyoxA0_OXoiMPS26o4Lx6IQtVipAiWX4PZlFJDQnBRM",
+						"type": "text"
+					},
+					{
+						"key": "mcrypto-antiforgery",
+						"value": "CfDJ8BANqdYenMJOtScqF-ThmD7Wxaxigw31551epEzLdSPv5ONPOQAwxNLRv4D10gqKeqQcMzCnwx1kdsiKxsZxNAdkDtR605IxZmBOL2b-XZDG2_chZvckM-LNkjVI8NkAksMSEOYxvOOLpKYBxUvK3oSFvMMDrUO_sNAhzYUoZHx00sp8ORQ9k_cCWZfLJWU6LA",
+						"type": "text"
+					},
+					{
+						"key": "Cookie",
+						"value": "{{accessTokenAdmin}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"dateFrom\": \"{{dateFrom}}\",\r\n\t\"dateTo\": \"{{dateTo}}\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrlAdmin}}/admin/Invoice/Find/",
+					"host": [
+						"{{baseUrlAdmin}}"
+					],
+					"path": [
+						"admin",
+						"Invoice",
+						"Find",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get blocked balance after delete rig.",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('Response Status code from \"/api/Wallets/\" is 200', function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"pm.test('Response body from \"/api/Wallets/\" contains changes of blocked balance', function () {\r",
+							"    pm.response.to.have.body()\r",
+							"    let walletsArray = pm.response.json();\r",
+							"    pm.expect(walletsArray).to.be.an('array').that.is.not.empty;\r",
+							"\r",
+							"    let transactionIsDraft = pm.environment.get(\"transactionIsDraft\")\r",
+							"    let invoiceIsDraft = pm.environment.get(\"invoiceIsDraft\")\r",
+							"    let transactionAfterAddRig = pm.environment.get(\"transactionAfterAddRig\")\r",
+							"    let invoiceAfterAddRig = pm.environment.get(\"invoiceAfterAddRig\")\r",
+							"    let usdtAccount = pm.environment.get(\"usdtAccount\")\r",
+							"    let usdtAccountAfterAddRig = pm.environment.get(\"usdtAccountAfterAddRig\")\r",
+							"\r",
+							"    let usdtAccountAfterDeleteRig = null\r",
+							"    for(const account of walletsArray) {\r",
+							"        if (account.isMain && account.accounts[44]) {\r",
+							"            usdtAccountAfterDeleteRig = account\r",
+							"        }\r",
+							"    } \r",
+							"\r",
+							"    pm.expect(usdtAccountAfterDeleteRig.accounts[44].blockedBalance).to.be.equal(transactionIsDraft.source.amount)\r",
+							"    pm.expect(usdtAccountAfterDeleteRig.accounts[44].blockedBalance).to.be.equal(invoiceIsDraft.estimatePayment)\r",
+							"    pm.expect(usdtAccount.accounts[44].blockedBalance).to.be.lessThan(usdtAccountAfterAddRig.account[44].blockedBalance)\r",
+							"    pm.expect(usdtAccount.accounts[44].blockedBalance).to.be.lessThan(transactionAfterAddRig.source.amount)\r",
+							"    pm.expect(usdtAccount.accounts[44].blockedBalance).to.be.lessThan(invoiceAfterAddRig.estimatePayment)\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{accessToken}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{baseUrl}}/api/Wallets",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"Wallets"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"variable": [
+		{
+			"key": "minerName",
+			"value": ""
+		}
+	]
+}
