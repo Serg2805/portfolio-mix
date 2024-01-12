@@ -1,4 +1,4 @@
-#test_track_order.py Бойко Анастасия, 08-a-mars - Финальный проект
+#test_track_order.py
 import pytest
 import sender_stand_request
 
